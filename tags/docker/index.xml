@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Docker on Hoangph3&#39;s blog</title>
+    <link>https://hoangph3.github.io/tags/docker/</link>
+    <description>Recent content in Docker on Hoangph3&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 23 Sep 2023 16:14:26 +0700</lastBuildDate>
+    <atom:link href="https://hoangph3.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Docker Fundamentals Tutorial</title>
+      <link>https://hoangph3.github.io/posts/docker/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/docker/</guid>
+      <description>Learn Docker basics: images, containers, volumes, and Docker Compose workflows.</description>
+    </item>
+    <item>
+      <title>Serving TensorFlow Models with a Custom Environment</title>
+      <link>https://hoangph3.github.io/posts/ml_serving_custom_env/</link>
+      <pubDate>Sun, 13 Aug 2023 22:17:28 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/ml_serving_custom_env/</guid>
+      <description>Build a custom serving environment to run TensorFlow models with extra dependencies.</description>
+    </item>
+    <item>
+      <title>Data Mining - Deep Dive into Big Data Pipelines</title>
+      <link>https://hoangph3.github.io/posts/data_pipeline/</link>
+      <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/data_pipeline/</guid>
+      <description>Build a big-data pipeline stack combining Airflow, Spark and Kafka clusters with Docker.</description>
+    </item>
+  </channel>
+</rss>

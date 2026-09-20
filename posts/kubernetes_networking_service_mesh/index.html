@@ -1,0 +1,480 @@
+<!doctype html><html lang=en dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Kubernetes Networking and Service Mesh | Hoangph3's blog</title><meta name=keywords content="kubernetes,istio,networking,devops"><meta name=description content="Expose applications with Kubernetes Services and add traffic management with the Istio service mesh."><meta name=author content="hoangph3"><link rel=canonical href=https://hoangph3.github.io/posts/kubernetes_networking_service_mesh/><link crossorigin=anonymous href=/assets/css/stylesheet.cd9298b33628769aa1bc1acebbbfd7aa11ce81dfe03484d479e1907760249a1d.css integrity="sha256-zZKYszYodpqhvBrOu7/XqhHOgd/gNITUeeGQd2Akmh0=" rel="preload stylesheet" as=style><link rel=icon href=https://hoangph3.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://hoangph3.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://hoangph3.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://hoangph3.github.io/apple-touch-icon.png><link rel=mask-icon href=https://hoangph3.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://hoangph3.github.io/posts/kubernetes_networking_service_mesh/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://hoangph3.github.io/posts/kubernetes_networking_service_mesh/"><meta property="og:site_name" content="Hoangph3's blog"><meta property="og:title" content="Kubernetes Networking and Service Mesh"><meta property="og:description" content="Expose applications with Kubernetes Services and add traffic management with the Istio service mesh."><meta property="og:locale" content="en_us"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-09-23T16:14:26+07:00"><meta property="article:modified_time" content="2023-09-23T16:14:26+07:00"><meta property="article:tag" content="Kubernetes"><meta property="article:tag" content="Istio"><meta property="article:tag" content="Networking"><meta property="article:tag" content="Devops"><meta name=twitter:card content="summary"><meta name=twitter:title content="Kubernetes Networking and Service Mesh"><meta name=twitter:description content="Expose applications with Kubernetes Services and add traffic management with the Istio service mesh."><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://hoangph3.github.io/posts/"},{"@type":"ListItem","position":2,"name":"Kubernetes Networking and Service Mesh","item":"https://hoangph3.github.io/posts/kubernetes_networking_service_mesh/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Kubernetes Networking and Service Mesh","name":"Kubernetes Networking and Service Mesh","description":"Expose applications with Kubernetes Services and add traffic management with the Istio service mesh.","keywords":["kubernetes","istio","networking","devops"],"articleBody":"Kubernetes Services External access by configure Ingress Firstly, install nginx ingress:\nminikube addons enable ingress kubectl get all -n ingress-nginx NAME READY STATUS RESTARTS AGE pod/ingress-nginx-admission-create--1-6rs7v 0/1 Completed 0 14m pod/ingress-nginx-admission-patch--1-qf2zd 0/1 Completed 1 14m pod/ingress-nginx-controller-5f66978484-wtpph 1/1 Running 0 14m NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE service/ingress-nginx-controller NodePort 10.104.234.97 80:31300/TCP,443:30830/TCP 14m service/ingress-nginx-controller-admission ClusterIP 10.109.145.221 443/TCP 14m NAME READY UP-TO-DATE AVAILABLE AGE deployment.apps/ingress-nginx-controller 1/1 1 1 14m NAME DESIRED CURRENT READY AGE replicaset.apps/ingress-nginx-controller-5f66978484 1 1 1 14m NAME COMPLETIONS DURATION AGE job.batch/ingress-nginx-admission-create 1/1 4s 14m job.batch/ingress-nginx-admission-patch 1/1 5s 14m Create kubia application:\napiVersion: apps/v1 kind: Deployment metadata: name: kubia-deployment labels: app: kubia spec: replicas: 1 selector: matchLabels: app: kubia template: metadata: labels: app: kubia spec: containers: - name: kubia image: luksa/kubia:latest ports: - containerPort: 8080 protocol: TCP --- apiVersion: v1 kind: Service metadata: name: kubia-internal-service spec: # type default is ClusterIP selector: app: kubia ports: - protocol: TCP port: 8080 targetPort: 8080 kubectl apply -f kubia.yaml Create ingress for kubia-internal-service:\napiVersion: networking.k8s.io/v1 kind: Ingress metadata: name: kubia-ingress spec: rules: - host: kubia.example.com http: paths: - pathType: Prefix path: / backend: service: name: kubia-internal-service port: number: 8080 kubectl apply -f ingress.yaml Now we can list of ingress:\nkubectl get ingress NAME CLASS HOSTS ADDRESS PORTS AGE kubia-ingress nginx kubia.example.com localhost 80 94s The ADDRESS is localhost, this is the url that kubernetes control plane is running. In this case is minikube ip: 192.168.49.2.\nEdit /etc/hosts file:\n127.0.0.1 localhost 127.0.1.1 jump-windows # The following lines are desirable for IPv6 capable hosts ::1 localhost ip6-localhost ip6-loopback ff02::1 ip6-allnodes ff02::2 ip6-allrouters # k8s 192.168.49.2 kubia.example.com Go to your browser or use curl, we can access service through ingress:\ncurl kubia.example.com You've hit kubia-deployment-7b895464d7-h8448 Configure TLS for Ingress Firstly, we create the RSA private key:\nopenssl genrsa -out tls.key 2048 Next we will use the RSA private key to generate the certificate:\nopenssl req -new -x509 -key tls.key -days 360 -subj \"/CN=kubia\" -out tls.crt Perform base64 encode for tls.key and tls.crt, then fill to yaml file:\ncat tls.crt | base64 | tr -d \"\\n\" cat tls.key | base64 | tr -d \"\\n\" Create tls-secret.yaml save secret TLS:\napiVersion: v1 kind: Secret metadata: name: secret-tls type: kubernetes.io/tls data: # the data is abbreviated in this example tls.crt: | LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURBVENDQWVtZ0F3SUJBZ0lVUWw2eitJOUY4MmgwQThjbzUxVmJ5K2Vjay9nd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0VERU9NQXdHQTFVRUF3d0ZhM1ZpYVdFd0hoY05Nakl3TkRFd01UWXlOek0wV2hjTk1qTXdOREExTVRZeQpOek0wV2pBUU1RNHdEQVlEVlFRRERBVnJkV0pwWVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDCkFRb0NnZ0VCQU1DNURMa3JXMHhJWkVEUFE4N1RYdlMxU3M3UkJKWk9wZGlTcnlaSTFHb0s4cndZRTZQZ2pwM1MKaUNlQ3FHbWRWNGV1aGhmbjk5WGlEQVFYSjRlS1R5TDlndTdvV2M5ZFg4d25KR0tXSjVnRE8zTzFnUWNjcGRhSwppSWRyUTlyMXBPTkIrSjZnR0t6NUtucXpZK2wvL0NSSDU2M0FuZ1h2TWlvODVWTWNOd3ZOV09nVjBpNlRjSk1kCmE4aWk2YXhLQWcwMjlaWjFRRFFPTVhYR3ZNeFFzRkhUM045ZUthbDFKYlZRL2ZFUy9hOHNNbXFYN01ncE0wdkUKV2xLSzF1TjlzeWYyamtKQzlhd0Fac3hveDQxbjd0WENPdTJ5alVqTlQvWGNyU0hPbUtScXRqL215T096N1Myawp0VE5QckVBVWk1U3FNbjBTbG43UXVjVEdtUVIrdDNrQ0F3RUFBYU5UTUZFd0hRWURWUjBPQkJZRUZMZTYvbERqCmZSNk8yOXptTHlLc3hZQmxmb0FMTUI4R0ExVWRJd1FZTUJhQUZMZTYvbERqZlI2TzI5em1MeUtzeFlCbGZvQUwKTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUgyTDh6S0dLUmZrdkMxNgplbW9ESE1jT0MxOEpiWmIzNG5yRDB0MWlleHp4MHJLNTFVRU5TZlJYK2E4Y3Vma2xFREROc0hUNnRHV2xEYmFECkhPeXRUZDNKcXg5bFJNMG1LK1pXZk1ITGNXQVF2bXZWcUNGa3NDcUhHc3ZTb1Q3WVY0OHBqcytpL1VsZnJPcE8KcmlNYk5tbTdHNkdqLzA4VkluTDdIVUZaQnNLdEovNkJ5WXJrR01LUHoyNjB5aHQ2TDJxaUx1NlRIbUN3eGV1YwpNd1J3bWN1ajlzQmFtL3JQOWJoTHJYcThuSUxCSUlEZmlIWE5zYXBnL1I0WGVlcDZaaG8yUDJlSmlHRE1udHRDCkVyVUtnT29IOWdHZmlrR2FiWHNQK0c2dkFFZk1FQXR3L09wVmZHTHNSZnZ1U1RQT0JTVXdkaThvcldUTDFvOVAKMVFjSVRVTT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo= tls.key: | LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBd0xrTXVTdGJURWhrUU05RHp0TmU5TFZLenRFRWxrNmwySkt2SmtqVWFncnl2QmdUCm8rQ09uZEtJSjRLb2FaMVhoNjZHRitmMzFlSU1CQmNuaDRwUEl2MkM3dWhaejExZnpDY2tZcFlubUFNN2M3V0IKQnh5bDFvcUloMnREMnZXazQwSDRucUFZclBrcWVyTmo2WC84SkVmbnJjQ2VCZTh5S2p6bFV4dzNDODFZNkJYUwpMcE53a3gxcnlLTHByRW9DRFRiMWxuVkFOQTR4ZGNhOHpGQ3dVZFBjMzE0cHFYVWx0VkQ5OFJMOXJ5d3lhcGZzCnlDa3pTOFJhVW9yVzQzMnpKL2FPUWtMMXJBQm16R2pIaldmdTFjSTY3YktOU00xUDlkeXRJYzZZcEdxMlArYkkKNDdQdExhUzFNMCtzUUJTTGxLb3lmUktXZnRDNXhNYVpCSDYzZVFJREFRQUJBb0lCQURzdkdPY3NsMmIvdkRuaQo3TEh4VzNITzB1QmNkQW9zc09XbmRqNU5rMTNWYXVHMGl5T0NiSW12QTcwT2RPV3FPaDBpelc4OS8zQWhjUXM0CmlSMG9ybERTaFlrVXRhL212dXFWQXFsNzcwRFJqVXBsYlBCZ0xkV0t5WTY4dENQajEvVXFaMDFmWVBTTnVDdmkKTjBhWDFUalhGQ0RaekMyS1hWOTNQLzJiNXBPcXZMRHRiWDhDRkYrcmloYnhGOEk5ZkhmdXBTYzFwQXNYWkNBQQoxRnNXZG83Nmk2YVBuL3ZuRU9kRG1KK09ZN3p5K01hM3E3alF3ajhFMmRkUFdDQkp1UE9yNzEzRGt1TXJUc3RTCjFMRVptWlIzckFJcytxbDI4U0ZVbkdiWHZHZjhSNDBkWnhsNkpzR09hS3d1VjNwck9zN2hUbW9leUhSYlk1V0cKNkV5TXp6a0NnWUVBKzFlSjdoTVR6eFhDVTAxTU5sMjFmYjU1cEpaNm55ZmFPMWI1bUhUR295dndrWEN0NFRUcwovb1plN0tzVUtJZFVmWDZ1OCs0Nms0VzNkZjBwVDZWR2ZHODdwWlBNVVJaMk53SmUzc3FMMnBBNHRzZXQ2N3Q0ClVlaGswdlJYRXRQQXV3SVBlbXhHMXI0Q0FMNFZsMFJOK29UQ1B4YmJrRlRVZ1FsdzUrS29TWU1DZ1lFQXhFdG0KVml4eVluUUZROW0wZk4vWndUZTZVMzZ2S0s3WXF3NHRVelAyejRwQ1RkWEhsREgrWEhtMDR1aFd3dVg0V1hHMwpvNHV5NTFBZmpjS1VJcFVyckgxa3RMWkM4T3RZYzlVY0dUTUZEYzhmNzI0R2dNRXU1c3dYWTJHS1RvbkJOcm8wCktLYmhlTEFpeW9HMGM0OEppS3BtYTYrRVdvSDFNM1EvOS9hWjlsTUNnWUVBMURCeklhcTVibnJRTThOdU0vZW8KNFIrTlVvWTN2MlhGdDVNVjVMK3hjdEFGcU1PWUNDakdhNXJGU01pbG5CR2tJczV3cFQ3WjlQRk9rUzNKVXBRVgpqYmZhZzA3amp4R0hlNmxrcm5JUTM5UWlEUzFHaDEwZGx3aTdGZDF5SlZMZnd3RmFUK0JaYmJHN3Z5UzYxWm0wCnUycVpFdW9aTXlCcXh3VlJiSExONEVFQ2dZRUFuVmhuTnNvNEFrMUg3eVJ5ZGVxbHpTalRsWndsNGJHT0FrZkIKODBEakpXZUpVSVQ5andBb0NZNlJmWldKL242Qy9ZZVhFV1NveXB4Q1BzcnJIWEYvYWF1MTd0bHVmVm5aTkRodQpacENzQzI2dEJhcW5VY3dJd1g1MWZQY3grMVNXNlR5SEZOTDRSMXJBK0p6UnZoTzVLN0NUbXR3OWRxTlhucUFmCnFxOGtxUHNDZ1lFQWcxQng5TksyVVVkZTgyaDZmZmFlWXROVDdXa1RXM2dvandFV2p3WXhzZVBVQ0Q1MWloVUEKYVQ0QVhvaWxsRys1Wnd3Q3Z4V0NYNE1kWTl5SDlVMng5SGhjS1QreCszZnp3NjNPN0g1ampjcHRXYVJhdlZadApsdUlEM1crVnpaL3ZvYnV2WUdScVc5NUhLbThRN2FuU283SzB2TkswUXZzYXJySjZ4c01rcW1FPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo= kubectl apply -f tls-secret.yaml Now create Ingress with TLS:\napiVersion: networking.k8s.io/v1 kind: Ingress metadata: name: tls-kubia-ingress spec: tls: - hosts: - kubia.example.com secretName: secret-tls rules: - host: kubia.example.com http: paths: - path: / pathType: Prefix backend: service: name: kubia-internal-service port: number: 8080 kubectl apply -f tls-ingress.yaml kubectl get ingress NAME CLASS HOSTS ADDRESS PORTS AGE tls-kubia-ingress nginx kubia.example.com localhost 80, 443 17s We can see the PORTS is 80, 443. Let’s use HTTPS to access your service through the Ingress:\ncurl -k -v https://kubia.example.com/kubia * Trying 192.168.49.2:443... * Connected to kubia.example.com (192.168.49.2) port 443 (#0) * ALPN, offering h2 * ALPN, offering http/1.1 * TLSv1.3 (OUT), TLS handshake, Client hello (1): * TLSv1.3 (IN), TLS handshake, Server hello (2): * TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8): * TLSv1.3 (IN), TLS handshake, Certificate (11): * TLSv1.3 (IN), TLS handshake, CERT verify (15): * TLSv1.3 (IN), TLS handshake, Finished (20): * TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1): * TLSv1.3 (OUT), TLS handshake, Finished (20): * SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384 * ALPN, server accepted to use h2 * Server certificate: * subject: O=Acme Co; CN=Kubernetes Ingress Controller Fake Certificate * start date: Apr 10 14:38:48 2022 GMT * expire date: Apr 10 14:38:48 2023 GMT * issuer: O=Acme Co; CN=Kubernetes Ingress Controller Fake Certificate * SSL certificate verify result: self signed certificate (18), continuing anyway. * Using HTTP2, server supports multiplexing * Connection state changed (HTTP/2 confirmed) * Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0 * Using Stream ID: 1 (easy handle 0x560b8745fb10) \u003e GET /kubia HTTP/2 \u003e Host: kubia.example.com \u003e user-agent: curl/7.81.0 \u003e accept: */* \u003e * TLSv1.3 (IN), TLS handshake, Newsession Ticket (4): * TLSv1.3 (IN), TLS handshake, Newsession Ticket (4): * old SSL session ID is stale, removing * Connection state changed (MAX_CONCURRENT_STREAMS == 128)! \u003c HTTP/2 200 \u003c date: Sun, 10 Apr 2022 16:51:41 GMT \u003c You've hit kubia-deployment-7b895464d7-h8448 * Connection #0 to host kubia.example.com left intact Configure headless service apiVersion: v1 kind: Service metadata: name: kubia-headless spec: selector: app: kubia clusterIP: None ports: - port: 80 targetPort: 8080 A headless service is a service with a service IP but instead of load-balancing it will return the IPs of our associated Pods. This allows us to interact directly with the Pods instead of a proxy.\nLet’s list of service:\nkubectl get service NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE kubernetes ClusterIP 10.96.0.1 443/TCP 73d kubia-headless ClusterIP None 80/TCP 33m kubia-internal-service ClusterIP 10.96.220.32 8080/TCP 3h1m Because headless service is connected to Pod’s IPs without proxy. If we exec to the pod, we can interact with headless service:\nkubectl get pods NAME READY STATUS RESTARTS AGE kubia-deployment-7b895464d7-h8448 1/1 Running 0 3h5m kubectl exec -it kubia-deployment-7b895464d7-h8448 -- bash root@kubia-deployment-7b895464d7-h8448:/# curl kubia-headless:8080 You've hit kubia-deployment-7b895464d7-h8448 root@kubia-deployment-7b895464d7-h8448:/# curl kubia-internal-service:8080 Istio Service Mesh Configure Istio for Kubernetes cluster Firstly, starting your minikube cluster:\n$ minikube start --memory=8192 --cpus=4 ... Done! kubectl is now configured to use \"minikube\" cluster and \"default\" namespace by default To build service mesh for kubernetes cluster, we can use istio, let’s download istio from https://github.com/istio/istio/releases/ and extracting:\n$ wget https://github.com/istio/istio/releases/download/1.12.7/istio-1.12.7-linux-amd64.tar.gz $ tar zvxf istio-1.12.7-linux-amd64.tar.gz Checking the binary istio:\n$ cd istio-1.12.7 \u0026\u0026 ls bin LICENSE manifests manifest.yaml README.md samples tools $ export PATH=$PWD/bin:$PATH $ istioctl Istio configuration command line utility for service operators to debug and diagnose their Istio mesh. Usage: istioctl [command] Available Commands: ... Flags: ... Additional help topics: istioctl options Displays istioctl global options Use \"istioctl [command] --help\" for more information about a command. If you have not installed istio:\n$ kubectl get ns NAME STATUS AGE default Active 8m47s kube-node-lease Active 8m50s kube-public Active 8m50s kube-system Active 8m50s $ kubectl get pods No resources found in default namespace. Let’s install istio service mesh:\n$ istioctl install This will install the Istio 1.12.7 default profile with [\"Istio core\" \"Istiod\" \"Ingress gateways\"] components into the cluster. Proceed? (y/N) y ✔ Istio core installed ✔ Istiod installed- Processing resources for Ingress gateways. Waiting for Deployment/istio-system/istio-ingressgateway ✔ Ingress gateways installed ✔ Installation complete Making this installation the default for injection and validation. Now listing pods and namespace in kubernetes cluster:\n$ kubectl get ns NAME STATUS AGE default Active 10m istio-system Active 62s kube-node-lease Active 10m kube-public Active 10m kube-system Active 10m $ kubectl get pods -n istio-system NAME READY STATUS RESTARTS AGE istio-ingressgateway-5744ff657c-cb6z2 1/1 Running 0 42s istiod-76f7bb65df-tcfvj 1/1 Running 0 66s $ kubectl get svc -A NAMESPACE NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE default kubernetes ClusterIP 10.96.0.1 443/TCP 10m istio-system istio-ingressgateway LoadBalancer 10.111.182.40 15021:31549/TCP,80:30496/TCP,443:32456/TCP 61s istio-system istiod ClusterIP 10.103.110.234 15010/TCP,15012/TCP,443/TCP,15014/TCP 86s kube-system kube-dns ClusterIP 10.96.0.10 53/UDP,53/TCP,9153/TCP 10m We can get a list of the ports available with the istio-ingressgateway service using:\n$ kubectl get svc istio-ingressgateway -n istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE istio-ingressgateway LoadBalancer 10.111.182.40 15021:31549/TCP,80:30496/TCP,443:32456/TCP 10m $ kubectl describe svc istio-ingressgateway -n istio-system Name: istio-ingressgateway Namespace: istio-system Labels: app=istio-ingressgateway install.operator.istio.io/owning-resource=unknown install.operator.istio.io/owning-resource-namespace=istio-system istio=ingressgateway istio.io/rev=default operator.istio.io/component=IngressGateways operator.istio.io/managed=Reconcile operator.istio.io/version=1.12.7 release=istio Annotations: Selector: app=istio-ingressgateway,istio=ingressgateway Type: LoadBalancer IP Family Policy: SingleStack IP Families: IPv4 IP: 10.111.182.40 IPs: 10.111.182.40 Port: status-port 15021/TCP TargetPort: 15021/TCP NodePort: status-port 31549/TCP Endpoints: 172.17.0.4:15021 Port: http2 80/TCP TargetPort: 8080/TCP NodePort: http2 30496/TCP Endpoints: 172.17.0.4:8080 Port: https 443/TCP TargetPort: 8443/TCP NodePort: https 32456/TCP Endpoints: 172.17.0.4:8443 Session Affinity: None External Traffic Policy: Cluster Events: The output here shows that the istio-ingressgateway service is forwarding requests from port 80 to port 30496 (http2).\nThe load balancer listener is set to listen on HTTP port 80, which is the port for the NGINX web server application used in the virtual service in this example.\nStep 1: Create the namespace my-namespace and enable automatic proxy sidecar injection.\n$ kubectl create ns my-namespace namespace/my-namespace created $ kubectl label ns my-namespace istio-injection=enabled namespace/my-namespace labeled $ kubectl get ns --show-labels NAME STATUS AGE LABELS default Active 60m kubernetes.io/metadata.name=default istio-system Active 51m kubernetes.io/metadata.name=istio-system kube-node-lease Active 60m kubernetes.io/metadata.name=kube-node-lease kube-public Active 60m kubernetes.io/metadata.name=kube-public kube-system Active 60m kubernetes.io/metadata.name=kube-system my-namespace Active 30m istio-injection=enabled,kubernetes.io/metadata.name=my-namespace Step 2: Create the NGINX deployment and NGINX service by create the manifest file nginx.yaml.\napiVersion: apps/v1 kind: Deployment metadata: labels: app: webserver name: my-nginx namespace: my-namespace spec: replicas: 3 selector: matchLabels: app: webserver template: metadata: labels: app: webserver spec: containers: - image: nginx name: my-nginx ports: - containerPort: 80 # matched targetPort --- apiVersion: v1 kind: Service metadata: labels: app: my-nginx name: webserver namespace: my-namespace spec: ports: - name: http port: 80 protocol: TCP targetPort: 80 # matched containerPort selector: app: webserver type: ClusterIP $ kubectl apply -f nginx.yaml deployment.apps/my-nginx created service/webserver created $ kubectl get deploy,svc,po -n my-namespace NAME READY UP-TO-DATE AVAILABLE AGE deployment.apps/my-nginx 3/3 3 3 19s NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE service/webserver ClusterIP 10.96.221.204 80/TCP 19s NAME READY STATUS RESTARTS AGE pod/my-nginx-856fb4777f-7s67q 2/2 Running 0 19s pod/my-nginx-856fb4777f-8bhj2 2/2 Running 0 19s pod/my-nginx-856fb4777f-d77fs 2/2 Running 0 19s We can see 2/2 in READY column, means that the pods have deployed with sidecar proxy. To validate this, we describe one of the pods:\n$ kubectl describe pods my-nginx-856fb4777f-7s67q -n my-namespace Events: Type Reason Age From Message ---- ------ ---- ---- ------- Normal Scheduled 46s default-scheduler Successfully assigned my-namespace/my-nginx-856fb4777f-7s67q to minikube Normal Pulled 45s kubelet Container image \"docker.io/istio/proxyv2:1.12.7\" already present on machine Normal Created 45s kubelet Created container istio-init Normal Started 45s kubelet Started container istio-init Normal Pulling 45s kubelet Pulling image \"nginx\" Normal Pulled 41s kubelet Successfully pulled image \"nginx\" in 3.441922626s Normal Created 41s kubelet Created container my-nginx Normal Started 41s kubelet Started container my-nginx Normal Pulled 41s kubelet Container image \"docker.io/istio/proxyv2:1.12.7\" already present on machine Normal Created 41s kubelet Created container istio-proxy Normal Started 41s kubelet Started container istio-proxy Warning Unhealthy 38s (x3 over 40s) kubelet Readiness probe failed: Get \"http://172.17.0.5:15021/healthz/ready\": dial tcp 172.17.0.5:15021: connect: connection refused Because my environment does not provide an external load balancer for the ingress gateway, the connection refused to 172.17.0.5:15021. But don’t worry about it, we can access the gateway using the service’s node port (30496).\nStep 3: Create an ingress gateway for the NGINX service by create the manifest file nginx-gateway.yaml.\napiVersion: networking.istio.io/v1alpha3 kind: Gateway metadata: name: my-nginx-gateway namespace: my-namespace spec: selector: istio: ingressgateway # get from labels when describe istio-ingressgateway service servers: - port: number: 80 name: http protocol: HTTP hosts: - \"mynginx.example.com\" $ kubectl apply -f nginx-gateway.yaml gateway.networking.istio.io/my-nginx-gateway created $ kubectl get gateways.networking.istio.io -n my-namespace NAME AGE my-nginx-gateway 14m Step 4: Create a virtual service for the ingress gateway by create the manifest file nginx-virtualservice.yaml.\napiVersion: networking.istio.io/v1alpha3 kind: VirtualService metadata: name: my-nginx-virtualservice namespace: my-namespace spec: hosts: - \"mynginx.example.com\" gateways: - my-nginx-gateway http: - match: - uri: prefix: / route: - destination: port: number: 80 host: webserver # matched .metadata.name in Service $ kubectl apply -f nginx-virtualservice.yaml virtualservice.networking.istio.io/my-nginx-virtualservice created $ kubectl get virtualservices.networking.istio.io -n my-namespace NAME GATEWAYS HOSTS AGE my-nginx-virtualservice [\"my-nginx-gateway\"] [\"mynginx.example.com\"] 17s To confirm the ingress gateway is serving the application to the load balancer, use:\n$ minikube ip 192.168.49.2 $ kubectl describe svc istio-ingressgateway -n istio-system | grep http2 Port: http2 80/TCP NodePort: http2 30496/TCP $ curl -I -HHost:mynginx.example.com 192.168.49.2:30496 HTTP/1.1 200 OK server: istio-envoy date: Sun, 22 May 2022 13:07:54 GMT content-type: text/html content-length: 615 last-modified: Tue, 25 Jan 2022 15:03:52 GMT etag: \"61f01158-267\" accept-ranges: bytes x-envoy-upstream-service-time: 17 To monitoring and data visualization, we can use kiali - an observability console for Istio with service mesh configuration and validation capabilities.\nIstio provides a basic sample installation to quickly get Kiali up and running:\n$ kubectl apply -f prometheus.yaml serviceaccount/prometheus created configmap/prometheus created clusterrole.rbac.authorization.k8s.io/prometheus created clusterrolebinding.rbac.authorization.k8s.io/prometheus created service/prometheus created deployment.apps/prometheus created $ kubectl apply -f kiali.yaml serviceaccount/kiali created configmap/kiali created clusterrole.rbac.authorization.k8s.io/kiali-viewer created clusterrole.rbac.authorization.k8s.io/kiali created clusterrolebinding.rbac.authorization.k8s.io/kiali created role.rbac.authorization.k8s.io/kiali-controlplane created rolebinding.rbac.authorization.k8s.io/kiali-controlplane created service/kiali created deployment.apps/kiali created $ kubectl get svc -n istio-system NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE istio-ingressgateway LoadBalancer 10.111.182.40 15021:31549/TCP,80:30496/TCP,443:32456/TCP 4h34m istiod ClusterIP 10.103.110.234 15010/TCP,15012/TCP,443/TCP,15014/TCP 4h34m kiali ClusterIP 10.100.112.235 20001/TCP,9090/TCP 8s prometheus ClusterIP 10.110.80.171 9090/TCP 54s Instead expose kiali service, we can forward port from kiali service to localhost by command line:\n$ kubectl port-forward svc/kiali -n istio-system 20001 Forwarding from 127.0.0.1:20001 -\u003e 20001 Forwarding from [::1]:20001 -\u003e 20001 Then, access Kiali by visiting http://127.0.0.1:20001 in your preferred web browser.\n","wordCount":"2060","inLanguage":"en","datePublished":"2023-09-23T16:14:26+07:00","dateModified":"2023-09-23T16:14:26+07:00","author":{"@type":"Person","name":"hoangph3"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://hoangph3.github.io/posts/kubernetes_networking_service_mesh/"},"publisher":{"@type":"Organization","name":"Hoangph3's blog","logo":{"@type":"ImageObject","url":"https://hoangph3.github.io/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=header-nav><div class=logo><a href=https://hoangph3.github.io/ accesskey=h title="Hoangph3's blog (Alt + H)">Hoangph3's blog</a><div class=logo-switches><button id=theme-toggle class=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg class="moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg class="sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu class=menu><li><a href=https://hoangph3.github.io/tags/ title=Tags><span>Tags</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><nav class=breadcrumbs role=navigation aria-label=Breadcrumb><a href=/>Home</a>
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"/></svg>
+<a href=/posts/>Posts</a>
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"/></svg></nav><h1 class="post-title entry-hint-parent">Kubernetes Networking and Service Mesh</h1><div class=post-description>Expose applications with Kubernetes Services and add traffic management with the Istio service mesh.</div><div class=post-meta><span title='2023-09-23 16:14:26 +0700 +0700'>September 23, 2023</span>&nbsp;·&nbsp;<span>10 min</span>&nbsp;·&nbsp;<span>hoangph3</span></div></header><details class=toc><summary accesskey=c title="(Alt + C)"><span class=title>Table of Contents</span></summary><div class=inner><nav id=TableOfContents><ul><li><a href=#kubernetes-services>Kubernetes Services</a><ul><li><a href=#external-access-by-configure-ingress>External access by configure Ingress</a></li><li><a href=#configure-tls-for-ingress>Configure TLS for Ingress</a></li><li><a href=#configure-headless-service>Configure headless service</a></li></ul></li><li><a href=#istio-service-mesh>Istio Service Mesh</a><ul><li><a href=#configure-istio-for-kubernetes-cluster>Configure Istio for Kubernetes cluster</a></li></ul></li></ul></nav></div></details><div class="post-content md-content"><h2 id=kubernetes-services>Kubernetes Services<a hidden class=anchor aria-hidden=true href=#kubernetes-services>#</a></h2><h3 id=external-access-by-configure-ingress>External access by configure Ingress<a hidden class=anchor aria-hidden=true href=#external-access-by-configure-ingress>#</a></h3><p>Firstly, install nginx ingress:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>minikube addons <span class=nb>enable</span> ingress
+</span></span><span class=line><span class=cl>kubectl get all -n ingress-nginx
+</span></span></code></pre></div><pre tabindex=0><code>NAME                                            READY   STATUS      RESTARTS   AGE
+pod/ingress-nginx-admission-create--1-6rs7v     0/1     Completed   0          14m
+pod/ingress-nginx-admission-patch--1-qf2zd      0/1     Completed   1          14m
+pod/ingress-nginx-controller-5f66978484-wtpph   1/1     Running     0          14m
+
+NAME                                         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+service/ingress-nginx-controller             NodePort    10.104.234.97    &lt;none&gt;        80:31300/TCP,443:30830/TCP   14m
+service/ingress-nginx-controller-admission   ClusterIP   10.109.145.221   &lt;none&gt;        443/TCP                      14m
+
+NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ingress-nginx-controller   1/1     1            1           14m
+
+NAME                                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/ingress-nginx-controller-5f66978484   1         1         1       14m
+
+NAME                                       COMPLETIONS   DURATION   AGE
+job.batch/ingress-nginx-admission-create   1/1           4s         14m
+job.batch/ingress-nginx-admission-patch    1/1           5s         14m
+</code></pre><p>Create kubia application:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kubia-deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kubia</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kubia</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kubia</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kubia</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>luksa/kubia:latest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=l>TCP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kubia-internal-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># type default is ClusterIP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kubia</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=l>TCP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>targetPort</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kubectl apply -f kubia.yaml
+</span></span></code></pre></div><p>Create ingress for kubia-internal-service:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.k8s.io/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Ingress</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kubia-ingress</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>rules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>host</span><span class=p>:</span><span class=w> </span><span class=l>kubia.example.com</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>pathType</span><span class=p>:</span><span class=w> </span><span class=l>Prefix</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>/</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>backend</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kubia-internal-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>port</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>number</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kubectl apply -f ingress.yaml
+</span></span></code></pre></div><p>Now we can list of ingress:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kubectl get ingress
+</span></span></code></pre></div><pre tabindex=0><code>NAME            CLASS   HOSTS               ADDRESS     PORTS   AGE
+kubia-ingress   nginx   kubia.example.com   localhost   80      94s
+</code></pre><p>The ADDRESS is localhost, this is the url that kubernetes control plane is running. In this case is <code>minikube ip: 192.168.49.2</code>.</p><p>Edit <code>/etc/hosts</code> file:</p><pre tabindex=0><code>127.0.0.1       localhost
+127.0.1.1       jump-windows
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+# k8s
+192.168.49.2 kubia.example.com
+</code></pre><p>Go to your browser or use <code>curl</code>, we can access service through ingress:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>curl kubia.example.com
+</span></span></code></pre></div><pre tabindex=0><code>You&#39;ve hit kubia-deployment-7b895464d7-h8448
+</code></pre><h3 id=configure-tls-for-ingress>Configure TLS for Ingress<a hidden class=anchor aria-hidden=true href=#configure-tls-for-ingress>#</a></h3><p>Firstly, we create the RSA private key:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>openssl genrsa -out tls.key <span class=m>2048</span>
+</span></span></code></pre></div><p>Next we will use the RSA private key to generate the certificate:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>openssl req -new -x509 -key tls.key -days <span class=m>360</span> -subj <span class=s2>&#34;/CN=kubia&#34;</span> -out tls.crt
+</span></span></code></pre></div><p>Perform base64 encode for <code>tls.key</code> and <code>tls.crt</code>, then fill to yaml file:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>cat tls.crt <span class=p>|</span> base64 <span class=p>|</span> tr -d <span class=s2>&#34;\n&#34;</span>
+</span></span><span class=line><span class=cl>cat tls.key <span class=p>|</span> base64 <span class=p>|</span> tr -d <span class=s2>&#34;\n&#34;</span>
+</span></span></code></pre></div><p>Create <code>tls-secret.yaml</code> save secret TLS:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Secret</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>secret-tls</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>kubernetes.io/tls</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>data</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># the data is abbreviated in this example</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tls.crt</span><span class=p>:</span><span class=w> </span><span class=p>|</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURBVENDQWVtZ0F3SUJBZ0lVUWw2eitJOUY4MmgwQThjbzUxVmJ5K2Vjay9nd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0VERU9NQXdHQTFVRUF3d0ZhM1ZpYVdFd0hoY05Nakl3TkRFd01UWXlOek0wV2hjTk1qTXdOREExTVRZeQpOek0wV2pBUU1RNHdEQVlEVlFRRERBVnJkV0pwWVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDCkFRb0NnZ0VCQU1DNURMa3JXMHhJWkVEUFE4N1RYdlMxU3M3UkJKWk9wZGlTcnlaSTFHb0s4cndZRTZQZ2pwM1MKaUNlQ3FHbWRWNGV1aGhmbjk5WGlEQVFYSjRlS1R5TDlndTdvV2M5ZFg4d25KR0tXSjVnRE8zTzFnUWNjcGRhSwppSWRyUTlyMXBPTkIrSjZnR0t6NUtucXpZK2wvL0NSSDU2M0FuZ1h2TWlvODVWTWNOd3ZOV09nVjBpNlRjSk1kCmE4aWk2YXhLQWcwMjlaWjFRRFFPTVhYR3ZNeFFzRkhUM045ZUthbDFKYlZRL2ZFUy9hOHNNbXFYN01ncE0wdkUKV2xLSzF1TjlzeWYyamtKQzlhd0Fac3hveDQxbjd0WENPdTJ5alVqTlQvWGNyU0hPbUtScXRqL215T096N1Myawp0VE5QckVBVWk1U3FNbjBTbG43UXVjVEdtUVIrdDNrQ0F3RUFBYU5UTUZFd0hRWURWUjBPQkJZRUZMZTYvbERqCmZSNk8yOXptTHlLc3hZQmxmb0FMTUI4R0ExVWRJd1FZTUJhQUZMZTYvbERqZlI2TzI5em1MeUtzeFlCbGZvQUwKTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUgyTDh6S0dLUmZrdkMxNgplbW9ESE1jT0MxOEpiWmIzNG5yRDB0MWlleHp4MHJLNTFVRU5TZlJYK2E4Y3Vma2xFREROc0hUNnRHV2xEYmFECkhPeXRUZDNKcXg5bFJNMG1LK1pXZk1ITGNXQVF2bXZWcUNGa3NDcUhHc3ZTb1Q3WVY0OHBqcytpL1VsZnJPcE8KcmlNYk5tbTdHNkdqLzA4VkluTDdIVUZaQnNLdEovNkJ5WXJrR01LUHoyNjB5aHQ2TDJxaUx1NlRIbUN3eGV1YwpNd1J3bWN1ajlzQmFtL3JQOWJoTHJYcThuSUxCSUlEZmlIWE5zYXBnL1I0WGVlcDZaaG8yUDJlSmlHRE1udHRDCkVyVUtnT29IOWdHZmlrR2FiWHNQK0c2dkFFZk1FQXR3L09wVmZHTHNSZnZ1U1RQT0JTVXdkaThvcldUTDFvOVAKMVFjSVRVTT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tls.key</span><span class=p>:</span><span class=w> </span><span class=p>|</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBd0xrTXVTdGJURWhrUU05RHp0TmU5TFZLenRFRWxrNmwySkt2SmtqVWFncnl2QmdUCm8rQ09uZEtJSjRLb2FaMVhoNjZHRitmMzFlSU1CQmNuaDRwUEl2MkM3dWhaejExZnpDY2tZcFlubUFNN2M3V0IKQnh5bDFvcUloMnREMnZXazQwSDRucUFZclBrcWVyTmo2WC84SkVmbnJjQ2VCZTh5S2p6bFV4dzNDODFZNkJYUwpMcE53a3gxcnlLTHByRW9DRFRiMWxuVkFOQTR4ZGNhOHpGQ3dVZFBjMzE0cHFYVWx0VkQ5OFJMOXJ5d3lhcGZzCnlDa3pTOFJhVW9yVzQzMnpKL2FPUWtMMXJBQm16R2pIaldmdTFjSTY3YktOU00xUDlkeXRJYzZZcEdxMlArYkkKNDdQdExhUzFNMCtzUUJTTGxLb3lmUktXZnRDNXhNYVpCSDYzZVFJREFRQUJBb0lCQURzdkdPY3NsMmIvdkRuaQo3TEh4VzNITzB1QmNkQW9zc09XbmRqNU5rMTNWYXVHMGl5T0NiSW12QTcwT2RPV3FPaDBpelc4OS8zQWhjUXM0CmlSMG9ybERTaFlrVXRhL212dXFWQXFsNzcwRFJqVXBsYlBCZ0xkV0t5WTY4dENQajEvVXFaMDFmWVBTTnVDdmkKTjBhWDFUalhGQ0RaekMyS1hWOTNQLzJiNXBPcXZMRHRiWDhDRkYrcmloYnhGOEk5ZkhmdXBTYzFwQXNYWkNBQQoxRnNXZG83Nmk2YVBuL3ZuRU9kRG1KK09ZN3p5K01hM3E3alF3ajhFMmRkUFdDQkp1UE9yNzEzRGt1TXJUc3RTCjFMRVptWlIzckFJcytxbDI4U0ZVbkdiWHZHZjhSNDBkWnhsNkpzR09hS3d1VjNwck9zN2hUbW9leUhSYlk1V0cKNkV5TXp6a0NnWUVBKzFlSjdoTVR6eFhDVTAxTU5sMjFmYjU1cEpaNm55ZmFPMWI1bUhUR295dndrWEN0NFRUcwovb1plN0tzVUtJZFVmWDZ1OCs0Nms0VzNkZjBwVDZWR2ZHODdwWlBNVVJaMk53SmUzc3FMMnBBNHRzZXQ2N3Q0ClVlaGswdlJYRXRQQXV3SVBlbXhHMXI0Q0FMNFZsMFJOK29UQ1B4YmJrRlRVZ1FsdzUrS29TWU1DZ1lFQXhFdG0KVml4eVluUUZROW0wZk4vWndUZTZVMzZ2S0s3WXF3NHRVelAyejRwQ1RkWEhsREgrWEhtMDR1aFd3dVg0V1hHMwpvNHV5NTFBZmpjS1VJcFVyckgxa3RMWkM4T3RZYzlVY0dUTUZEYzhmNzI0R2dNRXU1c3dYWTJHS1RvbkJOcm8wCktLYmhlTEFpeW9HMGM0OEppS3BtYTYrRVdvSDFNM1EvOS9hWjlsTUNnWUVBMURCeklhcTVibnJRTThOdU0vZW8KNFIrTlVvWTN2MlhGdDVNVjVMK3hjdEFGcU1PWUNDakdhNXJGU01pbG5CR2tJczV3cFQ3WjlQRk9rUzNKVXBRVgpqYmZhZzA3amp4R0hlNmxrcm5JUTM5UWlEUzFHaDEwZGx3aTdGZDF5SlZMZnd3RmFUK0JaYmJHN3Z5UzYxWm0wCnUycVpFdW9aTXlCcXh3VlJiSExONEVFQ2dZRUFuVmhuTnNvNEFrMUg3eVJ5ZGVxbHpTalRsWndsNGJHT0FrZkIKODBEakpXZUpVSVQ5andBb0NZNlJmWldKL242Qy9ZZVhFV1NveXB4Q1BzcnJIWEYvYWF1MTd0bHVmVm5aTkRodQpacENzQzI2dEJhcW5VY3dJd1g1MWZQY3grMVNXNlR5SEZOTDRSMXJBK0p6UnZoTzVLN0NUbXR3OWRxTlhucUFmCnFxOGtxUHNDZ1lFQWcxQng5TksyVVVkZTgyaDZmZmFlWXROVDdXa1RXM2dvandFV2p3WXhzZVBVQ0Q1MWloVUEKYVQ0QVhvaWxsRys1Wnd3Q3Z4V0NYNE1kWTl5SDlVMng5SGhjS1QreCszZnp3NjNPN0g1ampjcHRXYVJhdlZadApsdUlEM1crVnpaL3ZvYnV2WUdScVc5NUhLbThRN2FuU283SzB2TkswUXZzYXJySjZ4c01rcW1FPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=</span><span class=w>
+</span></span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kubectl apply -f tls-secret.yaml
+</span></span></code></pre></div><p>Now create Ingress with TLS:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.k8s.io/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Ingress</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>tls-kubia-ingress</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>tls</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>hosts</span><span class=p>:</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>kubia.example.com</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>secretName</span><span class=p>:</span><span class=w> </span><span class=l>secret-tls</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>rules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>host</span><span class=p>:</span><span class=w> </span><span class=l>kubia.example.com</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>/</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>pathType</span><span class=p>:</span><span class=w> </span><span class=l>Prefix</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>backend</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kubia-internal-service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>            </span><span class=nt>port</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>              </span><span class=nt>number</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kubectl apply -f tls-ingress.yaml
+</span></span><span class=line><span class=cl>kubectl get ingress
+</span></span></code></pre></div><pre tabindex=0><code>NAME                CLASS   HOSTS               ADDRESS     PORTS     AGE
+tls-kubia-ingress   nginx   kubia.example.com   localhost   80, 443   17s
+</code></pre><p>We can see the PORTS is 80, 443. Let&rsquo;s use HTTPS to access your service through the Ingress:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>curl -k -v https://kubia.example.com/kubia
+</span></span></code></pre></div><pre tabindex=0><code>*   Trying 192.168.49.2:443...
+* Connected to kubia.example.com (192.168.49.2) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN, server accepted to use h2
+* Server certificate:
+*  subject: O=Acme Co; CN=Kubernetes Ingress Controller Fake Certificate
+*  start date: Apr 10 14:38:48 2022 GMT
+*  expire date: Apr 10 14:38:48 2023 GMT
+*  issuer: O=Acme Co; CN=Kubernetes Ingress Controller Fake Certificate
+*  SSL certificate verify result: self signed certificate (18), continuing anyway.
+* Using HTTP2, server supports multiplexing
+* Connection state changed (HTTP/2 confirmed)
+* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
+* Using Stream ID: 1 (easy handle 0x560b8745fb10)
+&gt; GET /kubia HTTP/2
+&gt; Host: kubia.example.com
+&gt; user-agent: curl/7.81.0
+&gt; accept: */*
+&gt; 
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+* old SSL session ID is stale, removing
+* Connection state changed (MAX_CONCURRENT_STREAMS == 128)!
+&lt; HTTP/2 200 
+&lt; date: Sun, 10 Apr 2022 16:51:41 GMT
+&lt; 
+You&#39;ve hit kubia-deployment-7b895464d7-h8448
+* Connection #0 to host kubia.example.com left intact
+</code></pre><h3 id=configure-headless-service>Configure headless service<a hidden class=anchor aria-hidden=true href=#configure-headless-service>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kubia-headless</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kubia</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>clusterIP</span><span class=p>:</span><span class=w> </span><span class=l>None</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>targetPort</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span></code></pre></div><p>A headless service is a service with a service IP but instead of load-balancing it will return the IPs of our associated Pods. This allows us to interact directly with the Pods instead of a proxy.</p><p>Let&rsquo;s list of service:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kubectl get service
+</span></span></code></pre></div><pre tabindex=0><code>NAME                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+kubernetes               ClusterIP   10.96.0.1      &lt;none&gt;        443/TCP    73d
+kubia-headless           ClusterIP   None           &lt;none&gt;        80/TCP     33m
+kubia-internal-service   ClusterIP   10.96.220.32   &lt;none&gt;        8080/TCP   3h1m
+</code></pre><p>Because headless service is connected to Pod&rsquo;s IPs without proxy. If we exec to the pod, we can interact with headless service:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kubectl get pods
+</span></span></code></pre></div><pre tabindex=0><code>NAME                                READY   STATUS    RESTARTS   AGE
+kubia-deployment-7b895464d7-h8448   1/1     Running   0          3h5m
+</code></pre><div class=highlight><pre tabindex=0 class=chroma><code class=language-sh data-lang=sh><span class=line><span class=cl>kubectl <span class=nb>exec</span> -it kubia-deployment-7b895464d7-h8448 -- bash
+</span></span></code></pre></div><pre tabindex=0><code>root@kubia-deployment-7b895464d7-h8448:/# curl kubia-headless:8080
+You&#39;ve hit kubia-deployment-7b895464d7-h8448
+
+root@kubia-deployment-7b895464d7-h8448:/# curl kubia-internal-service:8080
+</code></pre><h2 id=istio-service-mesh>Istio Service Mesh<a hidden class=anchor aria-hidden=true href=#istio-service-mesh>#</a></h2><h3 id=configure-istio-for-kubernetes-cluster>Configure Istio for Kubernetes cluster<a hidden class=anchor aria-hidden=true href=#configure-istio-for-kubernetes-cluster>#</a></h3><p>Firstly, starting your minikube cluster:</p><pre tabindex=0><code>$ minikube start --memory=8192 --cpus=4
+...
+Done! kubectl is now configured to use &#34;minikube&#34; cluster and &#34;default&#34; namespace by default
+</code></pre><p>To build service mesh for kubernetes cluster, we can use istio, let&rsquo;s download istio from <a href=https://github.com/istio/istio/releases/>https://github.com/istio/istio/releases/</a> and extracting:</p><pre tabindex=0><code>$ wget https://github.com/istio/istio/releases/download/1.12.7/istio-1.12.7-linux-amd64.tar.gz
+
+$ tar zvxf istio-1.12.7-linux-amd64.tar.gz
+</code></pre><p>Checking the binary istio:</p><pre tabindex=0><code>$ cd istio-1.12.7 &amp;&amp; ls
+bin  LICENSE  manifests  manifest.yaml  README.md  samples  tools
+
+$ export PATH=$PWD/bin:$PATH
+
+$ istioctl
+Istio configuration command line utility for service operators to
+debug and diagnose their Istio mesh.
+
+Usage:
+  istioctl [command]
+
+Available Commands:
+  ...
+
+Flags:
+      ...
+
+Additional help topics:
+  istioctl options                           Displays istioctl global options
+
+Use &#34;istioctl [command] --help&#34; for more information about a command.
+</code></pre><p>If you have not installed istio:</p><pre tabindex=0><code>$ kubectl get ns
+NAME              STATUS   AGE
+default           Active   8m47s
+kube-node-lease   Active   8m50s
+kube-public       Active   8m50s
+kube-system       Active   8m50s
+
+$ kubectl get pods
+No resources found in default namespace.
+</code></pre><p>Let&rsquo;s install istio service mesh:</p><pre tabindex=0><code>$ istioctl install
+This will install the Istio 1.12.7 default profile with [&#34;Istio core&#34; &#34;Istiod&#34; &#34;Ingress gateways&#34;] components into the cluster. Proceed? (y/N) y
+✔ Istio core installed
+✔ Istiod installed- Processing resources for Ingress gateways. Waiting for Deployment/istio-system/istio-ingressgateway
+✔ Ingress gateways installed
+✔ Installation complete
+Making this installation the default for injection and validation.
+</code></pre><p>Now listing pods and namespace in kubernetes cluster:</p><pre tabindex=0><code>$ kubectl get ns
+NAME              STATUS   AGE
+default           Active   10m
+istio-system      Active   62s
+kube-node-lease   Active   10m
+kube-public       Active   10m
+kube-system       Active   10m
+
+$ kubectl get pods -n istio-system
+NAME                                    READY   STATUS    RESTARTS   AGE
+istio-ingressgateway-5744ff657c-cb6z2   1/1     Running   0          42s
+istiod-76f7bb65df-tcfvj                 1/1     Running   0          66s
+
+$ kubectl get svc -A              
+NAMESPACE      NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                                      AGE
+default        kubernetes             ClusterIP      10.96.0.1        &lt;none&gt;        443/TCP                                      10m
+istio-system   istio-ingressgateway   LoadBalancer   10.111.182.40    &lt;pending&gt;     15021:31549/TCP,80:30496/TCP,443:32456/TCP   61s
+istio-system   istiod                 ClusterIP      10.103.110.234   &lt;none&gt;        15010/TCP,15012/TCP,443/TCP,15014/TCP        86s
+kube-system    kube-dns               ClusterIP      10.96.0.10       &lt;none&gt;        53/UDP,53/TCP,9153/TCP                       10m
+</code></pre><p>We can get a list of the ports available with the istio-ingressgateway service using:</p><pre tabindex=0><code>$ kubectl get svc istio-ingressgateway -n istio-system
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.111.182.40   &lt;pending&gt;     15021:31549/TCP,80:30496/TCP,443:32456/TCP   10m
+
+$ kubectl describe svc istio-ingressgateway -n istio-system
+Name:                     istio-ingressgateway
+Namespace:                istio-system
+Labels:                   app=istio-ingressgateway
+                          install.operator.istio.io/owning-resource=unknown
+                          install.operator.istio.io/owning-resource-namespace=istio-system
+                          istio=ingressgateway
+                          istio.io/rev=default
+                          operator.istio.io/component=IngressGateways
+                          operator.istio.io/managed=Reconcile
+                          operator.istio.io/version=1.12.7
+                          release=istio
+Annotations:              &lt;none&gt;
+Selector:                 app=istio-ingressgateway,istio=ingressgateway
+Type:                     LoadBalancer
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.111.182.40
+IPs:                      10.111.182.40
+Port:                     status-port  15021/TCP
+TargetPort:               15021/TCP
+NodePort:                 status-port  31549/TCP
+Endpoints:                172.17.0.4:15021
+Port:                     http2  80/TCP
+TargetPort:               8080/TCP
+NodePort:                 http2  30496/TCP
+Endpoints:                172.17.0.4:8080
+Port:                     https  443/TCP
+TargetPort:               8443/TCP
+NodePort:                 https  32456/TCP
+Endpoints:                172.17.0.4:8443
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   &lt;none&gt;
+</code></pre><p>The output here shows that the istio-ingressgateway service is forwarding requests from port <code>80</code> to port <code>30496</code> (http2).</p><p>The load balancer listener is set to listen on HTTP port 80, which is the port for the NGINX web server application used in the virtual service in this example.</p><p>Step 1: Create the namespace <code>my-namespace</code> and enable automatic proxy sidecar injection.</p><pre tabindex=0><code>$ kubectl create ns my-namespace
+namespace/my-namespace created
+
+$ kubectl label ns my-namespace istio-injection=enabled
+namespace/my-namespace labeled
+
+$ kubectl get ns --show-labels
+NAME              STATUS   AGE   LABELS
+default           Active   60m   kubernetes.io/metadata.name=default
+istio-system      Active   51m   kubernetes.io/metadata.name=istio-system
+kube-node-lease   Active   60m   kubernetes.io/metadata.name=kube-node-lease
+kube-public       Active   60m   kubernetes.io/metadata.name=kube-public
+kube-system       Active   60m   kubernetes.io/metadata.name=kube-system
+my-namespace      Active   30m   istio-injection=enabled,kubernetes.io/metadata.name=my-namespace
+</code></pre><p>Step 2: Create the NGINX deployment and NGINX service by create the manifest file <code>nginx.yaml</code>.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>webserver</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>my-namespace</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>webserver</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>webserver</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w> </span><span class=c># matched targetPort</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nn>---</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>my-nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>webserver</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>my-namespace</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>http</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=l>TCP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>targetPort</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w> </span><span class=c># matched containerPort</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>webserver</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>ClusterIP</span><span class=w>
+</span></span></span></code></pre></div><pre tabindex=0><code>$ kubectl apply -f nginx.yaml
+deployment.apps/my-nginx created
+service/webserver created
+
+$ kubectl get deploy,svc,po -n my-namespace
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/my-nginx   3/3     3            3           19s
+
+NAME                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/webserver   ClusterIP   10.96.221.204   &lt;none&gt;        80/TCP    19s
+
+NAME                            READY   STATUS    RESTARTS   AGE
+pod/my-nginx-856fb4777f-7s67q   2/2     Running   0          19s
+pod/my-nginx-856fb4777f-8bhj2   2/2     Running   0          19s
+pod/my-nginx-856fb4777f-d77fs   2/2     Running   0          19s
+</code></pre><p>We can see <code>2/2</code> in READY column, means that the pods have deployed with sidecar proxy. To validate this, we describe one of the pods:</p><pre tabindex=0><code>$ kubectl describe pods my-nginx-856fb4777f-7s67q -n my-namespace
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  46s                default-scheduler  Successfully assigned my-namespace/my-nginx-856fb4777f-7s67q to minikube
+  Normal   Pulled     45s                kubelet            Container image &#34;docker.io/istio/proxyv2:1.12.7&#34; already present on machine
+  Normal   Created    45s                kubelet            Created container istio-init
+  Normal   Started    45s                kubelet            Started container istio-init
+  Normal   Pulling    45s                kubelet            Pulling image &#34;nginx&#34;
+  Normal   Pulled     41s                kubelet            Successfully pulled image &#34;nginx&#34; in 3.441922626s
+  Normal   Created    41s                kubelet            Created container my-nginx
+  Normal   Started    41s                kubelet            Started container my-nginx
+  Normal   Pulled     41s                kubelet            Container image &#34;docker.io/istio/proxyv2:1.12.7&#34; already present on machine
+  Normal   Created    41s                kubelet            Created container istio-proxy
+  Normal   Started    41s                kubelet            Started container istio-proxy
+  Warning  Unhealthy  38s (x3 over 40s)  kubelet            Readiness probe failed: Get &#34;http://172.17.0.5:15021/healthz/ready&#34;: dial tcp 172.17.0.5:15021: connect: connection refused
+</code></pre><p>Because my environment does not provide an external load balancer for the ingress gateway, the connection refused to <code>172.17.0.5:15021</code>. But don&rsquo;t worry about it, we can access the gateway using the service&rsquo;s node port (<code>30496</code>).</p><p>Step 3: Create an ingress gateway for the NGINX service by create the manifest file <code>nginx-gateway.yaml</code>.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.istio.io/v1alpha3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Gateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-nginx-gateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>my-namespace</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>istio</span><span class=p>:</span><span class=w> </span><span class=l>ingressgateway</span><span class=w> </span><span class=c># get from labels when describe istio-ingressgateway service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>servers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>port</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>number</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>http</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=l>HTTP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>hosts</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=s2>&#34;mynginx.example.com&#34;</span><span class=w>
+</span></span></span></code></pre></div><pre tabindex=0><code>$ kubectl apply -f nginx-gateway.yaml
+gateway.networking.istio.io/my-nginx-gateway created
+
+$ kubectl get gateways.networking.istio.io -n my-namespace 
+NAME               AGE
+my-nginx-gateway   14m
+</code></pre><p>Step 4: Create a virtual service for the ingress gateway by create the manifest file <code>nginx-virtualservice.yaml</code>.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>networking.istio.io/v1alpha3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>VirtualService</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>my-nginx-virtualservice</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>my-namespace</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hosts</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=s2>&#34;mynginx.example.com&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>gateways</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>my-nginx-gateway</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>http</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>match</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>uri</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>prefix</span><span class=p>:</span><span class=w> </span><span class=l>/</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>route</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>destination</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>port</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>number</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>host</span><span class=p>:</span><span class=w> </span><span class=l>webserver</span><span class=w> </span><span class=c># matched .metadata.name in Service</span><span class=w>
+</span></span></span></code></pre></div><pre tabindex=0><code>$ kubectl apply -f nginx-virtualservice.yaml
+virtualservice.networking.istio.io/my-nginx-virtualservice created
+
+$ kubectl get virtualservices.networking.istio.io -n my-namespace 
+NAME                      GATEWAYS               HOSTS                     AGE
+my-nginx-virtualservice   [&#34;my-nginx-gateway&#34;]   [&#34;mynginx.example.com&#34;]   17s
+</code></pre><p>To confirm the ingress gateway is serving the application to the load balancer, use:</p><pre tabindex=0><code>$ minikube ip
+192.168.49.2
+
+$ kubectl describe svc istio-ingressgateway -n istio-system | grep http2
+Port:                     http2  80/TCP
+NodePort:                 http2  30496/TCP
+
+$ curl -I -HHost:mynginx.example.com 192.168.49.2:30496
+HTTP/1.1 200 OK
+server: istio-envoy
+date: Sun, 22 May 2022 13:07:54 GMT
+content-type: text/html
+content-length: 615
+last-modified: Tue, 25 Jan 2022 15:03:52 GMT
+etag: &#34;61f01158-267&#34;
+accept-ranges: bytes
+x-envoy-upstream-service-time: 17
+</code></pre><p>To monitoring and data visualization, we can use <code>kiali</code> - an observability console for Istio with service mesh configuration and validation capabilities.</p><p>Istio provides a basic sample installation to quickly get Kiali up and running:</p><pre tabindex=0><code>$ kubectl apply -f prometheus.yaml
+serviceaccount/prometheus created
+configmap/prometheus created
+clusterrole.rbac.authorization.k8s.io/prometheus created
+clusterrolebinding.rbac.authorization.k8s.io/prometheus created
+service/prometheus created
+deployment.apps/prometheus created
+
+$ kubectl apply -f kiali.yaml
+serviceaccount/kiali created
+configmap/kiali created
+clusterrole.rbac.authorization.k8s.io/kiali-viewer created
+clusterrole.rbac.authorization.k8s.io/kiali created
+clusterrolebinding.rbac.authorization.k8s.io/kiali created
+role.rbac.authorization.k8s.io/kiali-controlplane created
+rolebinding.rbac.authorization.k8s.io/kiali-controlplane created
+service/kiali created
+deployment.apps/kiali created
+
+$ kubectl get svc -n istio-system
+NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                                      AGE
+istio-ingressgateway   LoadBalancer   10.111.182.40    &lt;pending&gt;     15021:31549/TCP,80:30496/TCP,443:32456/TCP   4h34m
+istiod                 ClusterIP      10.103.110.234   &lt;none&gt;        15010/TCP,15012/TCP,443/TCP,15014/TCP        4h34m
+kiali                  ClusterIP      10.100.112.235   &lt;none&gt;        20001/TCP,9090/TCP                           8s
+prometheus             ClusterIP      10.110.80.171    &lt;none&gt;        9090/TCP                                     54s
+</code></pre><p>Instead expose kiali service, we can forward port from kiali service to localhost by command line:</p><pre tabindex=0><code>$ kubectl port-forward svc/kiali -n istio-system 20001
+Forwarding from 127.0.0.1:20001 -&gt; 20001
+Forwarding from [::1]:20001 -&gt; 20001
+</code></pre><p>Then, access Kiali by visiting http://127.0.0.1:20001 in your preferred web browser.</p></div><footer class=post-footer><ul class=post-tags><li><a href=https://hoangph3.github.io/tags/kubernetes/>Kubernetes</a></li><li><a href=https://hoangph3.github.io/tags/istio/>Istio</a></li><li><a href=https://hoangph3.github.io/tags/networking/>Networking</a></li><li><a href=https://hoangph3.github.io/tags/devops/>Devops</a></li></ul><nav class=paginav><a class=prev href=https://hoangph3.github.io/posts/kubernetes_custom_resources_gpus/><span class=title>« Prev</span>
+<span>Kubernetes Custom Resources and GPU Scheduling</span>
+</a><a class=next href=https://hoangph3.github.io/posts/kubernetes_security_access/><span class=title>Next »</span>
+<span>Kubernetes Security and Access Control</span></a></nav></footer></article></main><footer class=footer><span>&copy; 2026 <a href=https://hoangph3.github.io/>Hoangph3's blog</a></span> ·
+<span>Powered by
+<a href="https://gohugo.io/?utm_source=papermod" rel=noopener target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top id=top-link class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey=g><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var toplink=document.getElementById("top-link");window.onscroll=function(){const e=window.innerHeight;document.body.scrollTop>e||document.documentElement.scrollTop>e?toplink.classList.remove("hidden"):toplink.classList.add("hidden")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script><script>document.querySelectorAll("pre > code").forEach(e=>{const n=e.parentNode.parentNode,t=document.createElement("button");t.classList.add("copy-code"),t.innerHTML="copy";function s(){t.innerHTML="copied!",setTimeout(()=>{t.innerHTML="copy"},2e3)}t.addEventListener("click",t=>{if("clipboard"in navigator){navigator.clipboard.writeText(e.textContent),s();return}const n=document.createRange();n.selectNodeContents(e);const o=window.getSelection();o.removeAllRanges(),o.addRange(n);try{document.execCommand("copy"),s()}catch{}o.removeRange(n)}),n.classList.contains("highlight")?n.appendChild(t):n.parentNode.firstChild==n||(e.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName=="TABLE"?e.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(t):e.parentNode.appendChild(t))})</script></body></html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Mlops on Hoangph3&#39;s blog</title>
+    <link>https://hoangph3.github.io/tags/mlops/</link>
+    <description>Recent content in Mlops on Hoangph3&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 29 Jul 2023 13:32:54 +0700</lastBuildDate>
+    <atom:link href="https://hoangph3.github.io/tags/mlops/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Building a Feature Store for Machine Learning</title>
+      <link>https://hoangph3.github.io/posts/feature_store/</link>
+      <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/feature_store/</guid>
+      <description>Design and proposal for a feature store to serve consistent features for training and serving.</description>
+    </item>
+    <item>
+      <title>Orchestrating ML Workflows with Seldon Core</title>
+      <link>https://hoangph3.github.io/posts/seldon_core_workflows/</link>
+      <pubDate>Thu, 01 Dec 2022 21:01:58 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/seldon_core_workflows/</guid>
+      <description>Automate model deployment workflows on top of Seldon Core.</description>
+    </item>
+    <item>
+      <title>Building Kubeflow Pipeline Components</title>
+      <link>https://hoangph3.github.io/posts/kubeflow_pipeline_components/</link>
+      <pubDate>Tue, 01 Nov 2022 23:03:34 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubeflow_pipeline_components/</guid>
+      <description>Create custom and reusable components for Kubeflow Pipelines.</description>
+    </item>
+  </channel>
+</rss>

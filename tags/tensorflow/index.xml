@@ -1,19 +1,75 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>TensorFlow on Hoangph3&#39;s Blog</title>
+    <title>Tensorflow on Hoangph3&#39;s blog</title>
     <link>https://hoangph3.github.io/tags/tensorflow/</link>
-    <description>Recent content in TensorFlow on Hoangph3&#39;s Blog</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 06 Dec 2022 11:45:22 -0800</lastBuildDate><atom:link href="https://hoangph3.github.io/tags/tensorflow/index.xml" rel="self" type="application/rss+xml" />
+    <description>Recent content in Tensorflow on Hoangph3&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 13 Aug 2023 22:17:28 +0700</lastBuildDate>
+    <atom:link href="https://hoangph3.github.io/tags/tensorflow/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Serving TensorFlow Models with a Custom Environment</title>
+      <link>https://hoangph3.github.io/posts/ml_serving_custom_env/</link>
+      <pubDate>Sun, 13 Aug 2023 22:17:28 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/ml_serving_custom_env/</guid>
+      <description>Build a custom serving environment to run TensorFlow models with extra dependencies.</description>
+    </item>
+    <item>
+      <title>TensorFlow Serving: Handling Content Types</title>
+      <link>https://hoangph3.github.io/posts/ml_serving_content_type/</link>
+      <pubDate>Sat, 29 Jul 2023 13:33:38 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/ml_serving_content_type/</guid>
+      <description>Explore how TensorFlow Serving handles different request content types for inference.</description>
+    </item>
+    <item>
+      <title>Serving TensorFlow Models with JSON Requests</title>
+      <link>https://hoangph3.github.io/posts/ml_serving_json_model/</link>
+      <pubDate>Thu, 27 Jul 2023 22:18:49 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/ml_serving_json_model/</guid>
+      <description>Send and parse JSON prediction requests against a TensorFlow Serving model.</description>
+    </item>
+    <item>
+      <title>Serving Custom TensorFlow Models</title>
+      <link>https://hoangph3.github.io/posts/ml_serving_custom_model/</link>
+      <pubDate>Wed, 26 Jul 2023 00:43:34 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/ml_serving_custom_model/</guid>
+      <description>Package and serve a custom TensorFlow model signature with TensorFlow Serving.</description>
+    </item>
+    <item>
+      <title>Serving Multiple TensorFlow Models with Monitoring</title>
+      <link>https://hoangph3.github.io/posts/ml_serving_multi_model/</link>
+      <pubDate>Wed, 26 Jul 2023 00:02:51 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/ml_serving_multi_model/</guid>
+      <description>Serve multiple TensorFlow models simultaneously and monitor them with Prometheus and Swagger.</description>
+    </item>
+    <item>
+      <title>Deploying TensorFlow model as Canary Releases Kubernetes and Istio</title>
+      <link>https://hoangph3.github.io/posts/canary_release_tensorflow_k8s/</link>
+      <pubDate>Tue, 06 Dec 2022 11:45:22 -0800</pubDate>
+      <guid>https://hoangph3.github.io/posts/canary_release_tensorflow_k8s/</guid>
+      <description>Use Istio with Minikube and TensorFlow Serving to create canary deployments of TensorFlow machine learning models!</description>
+    </item>
     <item>
       <title>Prepare and Deploy a TensorFlow Model to Tensorflow Serving</title>
       <link>https://hoangph3.github.io/posts/tensorflow_serving_configuration/</link>
       <pubDate>Tue, 06 Dec 2022 11:45:22 -0800</pubDate>
-      
       <guid>https://hoangph3.github.io/posts/tensorflow_serving_configuration/</guid>
       <description>Serve tensorflow model efficiently with customized model signatures</description>
     </item>
-    
+    <item>
+      <title>Distributed Training with TensorFlow</title>
+      <link>https://hoangph3.github.io/posts/distributed_training_tensorflow/</link>
+      <pubDate>Tue, 01 Nov 2022 23:03:34 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/distributed_training_tensorflow/</guid>
+      <description>Train TensorFlow models across multiple workers using distributed training strategies.</description>
+    </item>
+    <item>
+      <title>Autoscaling TensorFlow Serving on Kubernetes</title>
+      <link>https://hoangph3.github.io/posts/autoscale_tensorflow_serving/</link>
+      <pubDate>Fri, 30 Sep 2022 22:13:01 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/autoscale_tensorflow_serving/</guid>
+      <description>Set up horizontal pod autoscaling for a TensorFlow Serving deployment on Kubernetes.</description>
+    </item>
   </channel>
 </rss>

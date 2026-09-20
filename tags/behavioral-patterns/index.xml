@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Behavioral-Patterns on Hoangph3&#39;s blog</title>
+    <link>https://hoangph3.github.io/tags/behavioral-patterns/</link>
+    <description>Recent content in Behavioral-Patterns on Hoangph3&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 19 May 2024 21:39:26 +0700</lastBuildDate>
+    <atom:link href="https://hoangph3.github.io/tags/behavioral-patterns/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Behavioral Design Patterns in Python</title>
+      <link>https://hoangph3.github.io/posts/design_patterns_behavior/</link>
+      <pubDate>Sun, 19 May 2024 21:39:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/design_patterns_behavior/</guid>
+      <description>Implement behavioral design patterns such as Strategy, Observer and Command in Python.</description>
+    </item>
+  </channel>
+</rss>

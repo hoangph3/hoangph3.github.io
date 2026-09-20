@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Containers on Hoangph3&#39;s blog</title>
+    <link>https://hoangph3.github.io/tags/containers/</link>
+    <description>Recent content in Containers on Hoangph3&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 23 Sep 2023 16:14:26 +0700</lastBuildDate>
+    <atom:link href="https://hoangph3.github.io/tags/containers/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Docker Fundamentals Tutorial</title>
+      <link>https://hoangph3.github.io/posts/docker/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/docker/</guid>
+      <description>Learn Docker basics: images, containers, volumes, and Docker Compose workflows.</description>
+    </item>
+  </channel>
+</rss>

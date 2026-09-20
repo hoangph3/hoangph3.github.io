@@ -1,19 +1,110 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Kubernetes on Hoangph3&#39;s Blog</title>
+    <title>Kubernetes on Hoangph3&#39;s blog</title>
     <link>https://hoangph3.github.io/tags/kubernetes/</link>
-    <description>Recent content in Kubernetes on Hoangph3&#39;s Blog</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 06 Dec 2022 11:45:22 -0800</lastBuildDate><atom:link href="https://hoangph3.github.io/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <description>Recent content in Kubernetes on Hoangph3&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 23 Sep 2023 16:14:26 +0700</lastBuildDate>
+    <atom:link href="https://hoangph3.github.io/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Bootstrapping Kubernetes Clusters</title>
+      <link>https://hoangph3.github.io/posts/kubernetes_cluster_bootstrap/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubernetes_cluster_bootstrap/</guid>
+      <description>Stand up Kubernetes clusters with kubeadm using stacked and external etcd topologies, plus certificate rotation and multi-cluster contexts.</description>
+    </item>
+    <item>
+      <title>Deploying Demo Applications on Kubernetes</title>
+      <link>https://hoangph3.github.io/posts/kubernetes_demo_apps/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubernetes_demo_apps/</guid>
+      <description>Two end-to-end example apps deployed on Kubernetes: a Node.js &#43; MongoDB app and a Python &#43; MySQL app.</description>
+    </item>
+    <item>
+      <title>Kubernetes Configuration and Storage</title>
+      <link>https://hoangph3.github.io/posts/kubernetes_config_storage/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubernetes_config_storage/</guid>
+      <description>Manage application configuration with ConfigMaps and Secrets, and persist data using Kubernetes volumes.</description>
+    </item>
+    <item>
+      <title>Kubernetes Custom Resources and GPU Scheduling</title>
+      <link>https://hoangph3.github.io/posts/kubernetes_custom_resources_gpus/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubernetes_custom_resources_gpus/</guid>
+      <description>Extend the Kubernetes API with Custom Resource Definitions and schedule GPU-backed workloads.</description>
+    </item>
+    <item>
+      <title>Kubernetes Networking and Service Mesh</title>
+      <link>https://hoangph3.github.io/posts/kubernetes_networking_service_mesh/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubernetes_networking_service_mesh/</guid>
+      <description>Expose applications with Kubernetes Services and add traffic management with the Istio service mesh.</description>
+    </item>
+    <item>
+      <title>Kubernetes Security and Access Control</title>
+      <link>https://hoangph3.github.io/posts/kubernetes_security_access/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubernetes_security_access/</guid>
+      <description>Harden a Kubernetes cluster with pod security policies and fine-grained RBAC for users and permissions.</description>
+    </item>
+    <item>
+      <title>Kubernetes Workloads and Scheduling</title>
+      <link>https://hoangph3.github.io/posts/kubernetes_workloads_scheduling/</link>
+      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubernetes_workloads_scheduling/</guid>
+      <description>Control how Kubernetes schedules and manages workloads: Jobs, StatefulSets, taints/tolerations, affinity rules, health probes and resource limits.</description>
+    </item>
     <item>
       <title>Deploying TensorFlow model as Canary Releases Kubernetes and Istio</title>
       <link>https://hoangph3.github.io/posts/canary_release_tensorflow_k8s/</link>
       <pubDate>Tue, 06 Dec 2022 11:45:22 -0800</pubDate>
-      
       <guid>https://hoangph3.github.io/posts/canary_release_tensorflow_k8s/</guid>
       <description>Use Istio with Minikube and TensorFlow Serving to create canary deployments of TensorFlow machine learning models!</description>
     </item>
-    
+    <item>
+      <title>Integrating Seldon Core with Kafka</title>
+      <link>https://hoangph3.github.io/posts/seldon_core_kafka_integration/</link>
+      <pubDate>Fri, 02 Dec 2022 01:06:21 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/seldon_core_kafka_integration/</guid>
+      <description>Stream predictions in and out of Seldon Core model deployments using Kafka.</description>
+    </item>
+    <item>
+      <title>Building Inference Graphs with Seldon Core</title>
+      <link>https://hoangph3.github.io/posts/seldon_core_inference_graph/</link>
+      <pubDate>Thu, 01 Dec 2022 21:13:24 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/seldon_core_inference_graph/</guid>
+      <description>Compose multi-step inference graphs (transformers, combiners, routers) with Seldon Core.</description>
+    </item>
+    <item>
+      <title>Orchestrating ML Workflows with Seldon Core</title>
+      <link>https://hoangph3.github.io/posts/seldon_core_workflows/</link>
+      <pubDate>Thu, 01 Dec 2022 21:01:58 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/seldon_core_workflows/</guid>
+      <description>Automate model deployment workflows on top of Seldon Core.</description>
+    </item>
+    <item>
+      <title>Deploying Your First Model with Seldon Core</title>
+      <link>https://hoangph3.github.io/posts/seldon_core_first_model/</link>
+      <pubDate>Thu, 01 Dec 2022 21:01:41 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/seldon_core_first_model/</guid>
+      <description>Deploy a first machine learning model on Kubernetes using Seldon Core, including authentication basics.</description>
+    </item>
+    <item>
+      <title>Building Kubeflow Pipeline Components</title>
+      <link>https://hoangph3.github.io/posts/kubeflow_pipeline_components/</link>
+      <pubDate>Tue, 01 Nov 2022 23:03:34 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/kubeflow_pipeline_components/</guid>
+      <description>Create custom and reusable components for Kubeflow Pipelines.</description>
+    </item>
+    <item>
+      <title>Autoscaling TensorFlow Serving on Kubernetes</title>
+      <link>https://hoangph3.github.io/posts/autoscale_tensorflow_serving/</link>
+      <pubDate>Fri, 30 Sep 2022 22:13:01 +0700</pubDate>
+      <guid>https://hoangph3.github.io/posts/autoscale_tensorflow_serving/</guid>
+      <description>Set up horizontal pod autoscaling for a TensorFlow Serving deployment on Kubernetes.</description>
+    </item>
   </channel>
 </rss>
