@@ -8,14 +8,7 @@
     <language>en-us</language>
     <lastBuildDate>Mon, 19 Aug 2024 00:47:20 +0700</lastBuildDate>
     <atom:link href="https://hoangph3.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Consul</title>
-      <link>https://hoangph3.github.io/tags/consul/</link>
-      <pubDate>Mon, 19 Aug 2024 00:47:20 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/consul/</guid>
-      <description></description>
-    </item>
-    <item>
+        <item>
       <title>Devops</title>
       <link>https://hoangph3.github.io/tags/devops/</link>
       <pubDate>Mon, 19 Aug 2024 00:47:20 +0700</pubDate>
@@ -29,21 +22,7 @@
       <guid>https://hoangph3.github.io/tags/nomad/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Orchestration</title>
-      <link>https://hoangph3.github.io/tags/orchestration/</link>
-      <pubDate>Mon, 19 Aug 2024 00:47:20 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/orchestration/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Creational-Patterns</title>
-      <link>https://hoangph3.github.io/tags/creational-patterns/</link>
-      <pubDate>Mon, 20 May 2024 00:19:30 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/creational-patterns/</guid>
-      <description></description>
-    </item>
-    <item>
+            <item>
       <title>Design-Patterns</title>
       <link>https://hoangph3.github.io/tags/design-patterns/</link>
       <pubDate>Mon, 20 May 2024 00:19:30 +0700</pubDate>
@@ -64,168 +43,28 @@
       <guid>https://hoangph3.github.io/tags/python/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Behavioral-Patterns</title>
-      <link>https://hoangph3.github.io/tags/behavioral-patterns/</link>
-      <pubDate>Sun, 19 May 2024 21:39:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/behavioral-patterns/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Design-Principles</title>
-      <link>https://hoangph3.github.io/tags/design-principles/</link>
-      <pubDate>Fri, 17 May 2024 23:22:35 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/design-principles/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Solid</title>
-      <link>https://hoangph3.github.io/tags/solid/</link>
-      <pubDate>Fri, 17 May 2024 23:22:35 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/solid/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Structural-Patterns</title>
-      <link>https://hoangph3.github.io/tags/structural-patterns/</link>
-      <pubDate>Mon, 13 May 2024 00:49:10 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/structural-patterns/</guid>
-      <description></description>
-    </item>
-    <item>
+                    <item>
       <title>Ansible</title>
       <link>https://hoangph3.github.io/tags/ansible/</link>
       <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/ansible/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Automation</title>
-      <link>https://hoangph3.github.io/tags/automation/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/automation/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Configuration</title>
-      <link>https://hoangph3.github.io/tags/configuration/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/configuration/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Containers</title>
-      <link>https://hoangph3.github.io/tags/containers/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/containers/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Custom-Resources</title>
-      <link>https://hoangph3.github.io/tags/custom-resources/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/custom-resources/</guid>
-      <description></description>
-    </item>
-    <item>
+                    <item>
       <title>Docker</title>
       <link>https://hoangph3.github.io/tags/docker/</link>
       <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/docker/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Etcd</title>
-      <link>https://hoangph3.github.io/tags/etcd/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/etcd/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Gpu</title>
-      <link>https://hoangph3.github.io/tags/gpu/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/gpu/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Istio</title>
-      <link>https://hoangph3.github.io/tags/istio/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/istio/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Kubeadm</title>
-      <link>https://hoangph3.github.io/tags/kubeadm/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/kubeadm/</guid>
-      <description></description>
-    </item>
-    <item>
+                    <item>
       <title>Kubernetes</title>
       <link>https://hoangph3.github.io/tags/kubernetes/</link>
       <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/kubernetes/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Mongodb</title>
-      <link>https://hoangph3.github.io/tags/mongodb/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/mongodb/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Mysql</title>
-      <link>https://hoangph3.github.io/tags/mysql/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/mysql/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Networking</title>
-      <link>https://hoangph3.github.io/tags/networking/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/networking/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Nodejs</title>
-      <link>https://hoangph3.github.io/tags/nodejs/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/nodejs/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Rbac</title>
-      <link>https://hoangph3.github.io/tags/rbac/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/rbac/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Scheduling</title>
-      <link>https://hoangph3.github.io/tags/scheduling/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/scheduling/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Security</title>
-      <link>https://hoangph3.github.io/tags/security/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/security/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Storage</title>
-      <link>https://hoangph3.github.io/tags/storage/</link>
-      <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/storage/</guid>
-      <description></description>
-    </item>
-    <item>
+                                    <item>
       <title>Model-Serving</title>
       <link>https://hoangph3.github.io/tags/model-serving/</link>
       <pubDate>Sun, 13 Aug 2023 22:17:28 +0700</pubDate>
@@ -239,28 +78,7 @@
       <guid>https://hoangph3.github.io/tags/tensorflow/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Airflow</title>
-      <link>https://hoangph3.github.io/tags/airflow/</link>
-      <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/airflow/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Data-Engineering</title>
-      <link>https://hoangph3.github.io/tags/data-engineering/</link>
-      <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/data-engineering/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Feature-Store</title>
-      <link>https://hoangph3.github.io/tags/feature-store/</link>
-      <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/feature-store/</guid>
-      <description></description>
-    </item>
-    <item>
+                <item>
       <title>Kafka</title>
       <link>https://hoangph3.github.io/tags/kafka/</link>
       <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
@@ -281,61 +99,19 @@
       <guid>https://hoangph3.github.io/tags/mlops/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Spark</title>
-      <link>https://hoangph3.github.io/tags/spark/</link>
-      <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/spark/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Json</title>
-      <link>https://hoangph3.github.io/tags/json/</link>
-      <pubDate>Thu, 27 Jul 2023 22:18:49 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/json/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Prometheus</title>
-      <link>https://hoangph3.github.io/tags/prometheus/</link>
-      <pubDate>Wed, 26 Jul 2023 00:02:51 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/prometheus/</guid>
-      <description></description>
-    </item>
-    <item>
+                <item>
       <title>Seldon-Core</title>
       <link>https://hoangph3.github.io/tags/seldon-core/</link>
       <pubDate>Fri, 02 Dec 2022 01:06:21 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/seldon-core/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Distributed-Training</title>
-      <link>https://hoangph3.github.io/tags/distributed-training/</link>
-      <pubDate>Tue, 01 Nov 2022 23:03:34 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/distributed-training/</guid>
-      <description></description>
-    </item>
-    <item>
+        <item>
       <title>Kubeflow</title>
       <link>https://hoangph3.github.io/tags/kubeflow/</link>
       <pubDate>Tue, 01 Nov 2022 23:03:34 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/kubeflow/</guid>
       <description></description>
     </item>
-    <item>
-      <title>Pipelines</title>
-      <link>https://hoangph3.github.io/tags/pipelines/</link>
-      <pubDate>Tue, 01 Nov 2022 23:03:34 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/pipelines/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Autoscaling</title>
-      <link>https://hoangph3.github.io/tags/autoscaling/</link>
-      <pubDate>Fri, 30 Sep 2022 22:13:01 +0700</pubDate>
-      <guid>https://hoangph3.github.io/tags/autoscaling/</guid>
-      <description></description>
-    </item>
-  </channel>
+          </channel>
 </rss>
