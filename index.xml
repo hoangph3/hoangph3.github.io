@@ -218,5 +218,12 @@
       <guid>https://hoangph3.github.io/posts/autoscale_tensorflow_serving/</guid>
       <description>Set up horizontal pod autoscaling for a TensorFlow Serving deployment on Kubernetes.</description>
     </item>
+    <item>
+      <title>Projects</title>
+      <link>https://hoangph3.github.io/projects/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://hoangph3.github.io/projects/</guid>
+      <description>A selection of projects and write-up series by Hoang Pham.</description>
+    </item>
   </channel>
 </rss>
