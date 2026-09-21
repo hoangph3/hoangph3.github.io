@@ -44,13 +44,6 @@
       <description>Serve multiple TensorFlow models simultaneously and monitor them with Prometheus and Swagger.</description>
     </item>
     <item>
-      <title>Deploying TensorFlow model as Canary Releases Kubernetes and Istio</title>
-      <link>https://hoangph3.github.io/posts/canary_release_tensorflow_k8s/</link>
-      <pubDate>Tue, 06 Dec 2022 11:45:22 -0800</pubDate>
-      <guid>https://hoangph3.github.io/posts/canary_release_tensorflow_k8s/</guid>
-      <description>Use Istio with Minikube and TensorFlow Serving to create canary deployments of TensorFlow machine learning models!</description>
-    </item>
-    <item>
       <title>Prepare and Deploy a TensorFlow Model to Tensorflow Serving</title>
       <link>https://hoangph3.github.io/posts/tensorflow_serving_configuration/</link>
       <pubDate>Tue, 06 Dec 2022 11:45:22 -0800</pubDate>
