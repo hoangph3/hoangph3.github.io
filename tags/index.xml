@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Tags on Hoangph3&#39;s blog</title>
+    <title>Tags on Hoangph3&#39;s Blog</title>
     <link>https://hoangph3.github.io/tags/</link>
-    <description>Recent content in Tags on Hoangph3&#39;s blog</description>
+    <description>Recent content in Tags on Hoangph3&#39;s Blog</description>
     <generator>Hugo</generator>
-    <language>en-us</language>
+    <language>en</language>
     <lastBuildDate>Mon, 19 Aug 2024 00:47:20 +0700</lastBuildDate>
     <atom:link href="https://hoangph3.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
-        <item>
-      <title>Devops</title>
+    <item>
+      <title>DevOps</title>
       <link>https://hoangph3.github.io/tags/devops/</link>
       <pubDate>Mon, 19 Aug 2024 00:47:20 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/devops/</guid>
@@ -22,15 +22,15 @@
       <guid>https://hoangph3.github.io/tags/nomad/</guid>
       <description></description>
     </item>
-            <item>
-      <title>Design-Patterns</title>
+    <item>
+      <title>Design Patterns</title>
       <link>https://hoangph3.github.io/tags/design-patterns/</link>
       <pubDate>Mon, 20 May 2024 00:19:30 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/design-patterns/</guid>
       <description></description>
     </item>
     <item>
-      <title>Oop</title>
+      <title>OOP</title>
       <link>https://hoangph3.github.io/tags/oop/</link>
       <pubDate>Mon, 20 May 2024 00:19:30 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/oop/</guid>
@@ -43,42 +43,42 @@
       <guid>https://hoangph3.github.io/tags/python/</guid>
       <description></description>
     </item>
-                    <item>
+    <item>
       <title>Ansible</title>
       <link>https://hoangph3.github.io/tags/ansible/</link>
       <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/ansible/</guid>
       <description></description>
     </item>
-                    <item>
+    <item>
       <title>Docker</title>
       <link>https://hoangph3.github.io/tags/docker/</link>
       <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/docker/</guid>
       <description></description>
     </item>
-                    <item>
+    <item>
       <title>Kubernetes</title>
       <link>https://hoangph3.github.io/tags/kubernetes/</link>
       <pubDate>Sat, 23 Sep 2023 16:14:26 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/kubernetes/</guid>
       <description></description>
     </item>
-                                    <item>
-      <title>Model-Serving</title>
+    <item>
+      <title>Model Serving</title>
       <link>https://hoangph3.github.io/tags/model-serving/</link>
       <pubDate>Sun, 13 Aug 2023 22:17:28 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/model-serving/</guid>
       <description></description>
     </item>
     <item>
-      <title>Tensorflow</title>
+      <title>TensorFlow</title>
       <link>https://hoangph3.github.io/tags/tensorflow/</link>
       <pubDate>Sun, 13 Aug 2023 22:17:28 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/tensorflow/</guid>
       <description></description>
     </item>
-                <item>
+    <item>
       <title>Kafka</title>
       <link>https://hoangph3.github.io/tags/kafka/</link>
       <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
@@ -86,32 +86,32 @@
       <description></description>
     </item>
     <item>
-      <title>Machine-Learning</title>
+      <title>Machine Learning</title>
       <link>https://hoangph3.github.io/tags/machine-learning/</link>
       <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/machine-learning/</guid>
       <description></description>
     </item>
     <item>
-      <title>Mlops</title>
+      <title>MLOps</title>
       <link>https://hoangph3.github.io/tags/mlops/</link>
       <pubDate>Sat, 29 Jul 2023 13:32:54 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/mlops/</guid>
       <description></description>
     </item>
-                <item>
-      <title>Seldon-Core</title>
+    <item>
+      <title>Seldon Core</title>
       <link>https://hoangph3.github.io/tags/seldon-core/</link>
       <pubDate>Fri, 02 Dec 2022 01:06:21 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/seldon-core/</guid>
       <description></description>
     </item>
-        <item>
+    <item>
       <title>Kubeflow</title>
       <link>https://hoangph3.github.io/tags/kubeflow/</link>
       <pubDate>Tue, 01 Nov 2022 23:03:34 +0700</pubDate>
       <guid>https://hoangph3.github.io/tags/kubeflow/</guid>
       <description></description>
     </item>
-          </channel>
+  </channel>
 </rss>
